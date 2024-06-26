@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --verbose ./tests/",
-    "build:counter": "",
+    "test:local": "",
+    "build:counter": "scripts/build.sh counter",
     "test:counter": "jest ./tests/counter",
     "clean:docker": "",
     "cli": ""

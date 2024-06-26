@@ -1,30 +1,45 @@
 #!/bin/bash
 
-# Logging
-TIMESTAMP=$(date +"%Y-%m-%d %T")
-TRACE="[$TIMESTAMP] LOG:"
-WARN="[$TIMESTAMP] WRN:"
-ERROR="[$TIMESTAMP] ERR:"
-SUCC="[$TIMESTAMP] SUCCESS:"
+# get program name from 1st positional argument
+PROGRAM_NAME=$1
 
-# Constants
-HOST_FOLDER_ABSOLUTE_PATH=$(pwd)/target/verifiable-deploy
-CONTAINER_FOLDER_ABSOLUTE_PATH=/app/target/deploy
-IMAGE_NAME=program
+# check if program name is empty
+if [ -z "${PROGRAM_NAME}" ]; then
+	echo "error: missing program name"
+	echo "usage: ./build.sh <PROGRAM_NAME>"
+	exit 1
+fi
 
-# Build the image and name it "app"
-# Prevent caching (start build from 0)
-echo "$TRACE Building image..."
-docker build -t $IMAGE_NAME --progress plain --no-cache .
-echo "$SUCC Building image..."
+# get repo root for reference point
+REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# Run image and build the files
-echo "$TRACE Building verifiable program..."
+# configuration
+ROOTDIR=programs/$PROGRAM_NAME
+RUST_IMAGE_TAG=1.79
+SOLANA_CLI=v1.18.16
+# separate folder form target/ to prevent Permission Denied error
+HOST_FOLDER_ABSOLUTE_PATH=$REPO_ROOT/verified/$PROGRAM_NAME
+CONTAINER_FOLDER_ABSOLUTE_PATH=/programs/target
+IMAGE_NAME=solana-native-typescript
+
+# display configuration
+echo "Program: $PROGRAM_NAME"
+echo "Rust: $RUST_IMAGE_TAG"
+echo "Solana: $SOLANA_CLI"
+
+# build the image and name it "app"
+# prevent caching (start build from 0)
+echo "Building image..."
+docker build --build-arg "ROOTDIR=$ROOTDIR" --build-arg "RUST_IMAGE_TAG=$RUST_IMAGE_TAG" --build-arg "SOLANA_CLI=$SOLANA_CLI" -t $IMAGE_NAME $REPO_ROOT
+echo "Sucessfully built image..."
+
+# run image and build the files
+echo "Building verifiable program..."
 docker run --rm --name "build-$IMAGE_NAME" -v $HOST_FOLDER_ABSOLUTE_PATH:$CONTAINER_FOLDER_ABSOLUTE_PATH $IMAGE_NAME
-echo "$SUCC Building verifiable program..."
+echo "Successfully built verifiable program..."
 
-# Delete the image named {$IMAGE_NAME}
-echo "$TRACE Deleting app image..."
+# delete the image named {$image_name}
+echo "Deleting app image..."
 docker image rm $IMAGE_NAME
-echo "$SUCC Deleting app image..."
+echo "Successfully deleted app image..."
 
