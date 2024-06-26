@@ -1,7 +1,3 @@
-import { assert } from "chai";
-
-describe("initialize", () => {
-  it("test", () => {
-    assert.isTrue(true);
-  });
+test("two plus two is four", () => {
+  expect(2 + 2).toBe(4);
 });

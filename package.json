@@ -3,18 +3,24 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "test": "jest --verbose ./tests/",
     "build:counter": "",
-    "test:counter": "jest",
-    "cli": "",
-    "clean:docker": ""
+    "test:counter": "jest ./tests/counter",
+    "clean:docker": "",
+    "cli": ""
   },
   "dependencies": {
     "@solana/web3.js": "^1.93.2",
+    "@types/jest": "^29.5.12",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
     "@types/bn.js": "^5.1.5",
     "@types/node": "^20.14.9",
+    "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "prettier": "^3.3.2",
     "typescript": "^5.5.2"
