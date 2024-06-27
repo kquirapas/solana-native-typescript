@@ -20,6 +20,8 @@ After years of developing with `Solana` I have developed a personal template of 
 
 # Work in Progress (WIP)
 
+- Utilizing WASM
+
 - Nix DevOps
 
 - Observability Workflow: Benchmarking / Profiling

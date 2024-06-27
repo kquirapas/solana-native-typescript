@@ -93,6 +93,7 @@ test("initialize counter", async () => {
   }
 
   // TODO: get state (counter, bump)
+  // TODO: explore WASM for annotating state
 
   // expect(a)
 });
