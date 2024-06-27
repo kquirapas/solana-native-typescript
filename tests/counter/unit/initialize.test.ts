@@ -10,8 +10,7 @@ import {
   SystemProgram,
 } from "@solana/web3.js";
 import { Buffer } from "buffer";
-
-import * as borsh from "borsh";
+import { getCounterAccountData } from "../../../client";
 
 const PROGRAM_ID = new PublicKey(
   // "BpU1mcCAtpJN6bRzetzNvfP1Z4do5hJGSVPq9MtfeT6J",
@@ -69,14 +68,14 @@ test("initialize counter", async () => {
   const DATA_SIZE = CODE_SIZE + BUMP_SIZE;
 
   // instruction data
-  const data = Buffer.alloc(DATA_SIZE);
-  data.writeUInt8(INSTRUCTIONS.Initialize, 0); // InitializeCounter(bump)
-  data.writeUInt8(canonicalBump, CODE_SIZE); // bump
+  const instructionData = Buffer.alloc(DATA_SIZE);
+  instructionData.writeUInt8(INSTRUCTIONS.Initialize, 0); // InitializeCounter(bump)
+  instructionData.writeUInt8(canonicalBump, CODE_SIZE); // bump
 
   const instruction = new TransactionInstruction({
     keys: accounts,
     programId: PROGRAM_ID,
-    data,
+    data: instructionData,
   });
 
   const tx = new Transaction().add(instruction);
@@ -87,38 +86,13 @@ test("initialize counter", async () => {
     console.error(err);
   }
 
-  // TODO: get state (counter, bump)
-  // TODO: explore WASM for annotating state
-  class CounterAccountData {
-    public readonly count;
-    public readonly bump;
+  const counterData = await getCounterAccountData(
+    connection,
+    counterAccountPda,
+  );
 
-    constructor(fields: { count: number; bump: number }) {
-      if (fields) {
-        this.count = fields.count;
-        this.bump = fields.bump;
-      }
-    }
-  }
+  console.log("counterData", counterData);
 
-  const CounterSchema = {
-    struct: { count: "i64", bump: "u8" },
-  };
-
-  try {
-    // get data
-    const accountInfo = await connection.getAccountInfo(counterAccountPda);
-
-    if (accountInfo) {
-      const fetchedData = accountInfo.data;
-      const counterData = borsh.deserialize(
-        CounterSchema,
-        fetchedData,
-      ) as CounterAccountData;
-      expect(counterData.count).toBe(BigInt(0));
-      expect(counterData.bump).toBe(canonicalBump);
-    }
-  } catch (err) {
-    console.error(err);
-  }
+  expect(counterData?.count).toBe(BigInt(0));
+  expect(counterData?.bump).toBe(canonicalBump);
 });
