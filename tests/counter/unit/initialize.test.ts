@@ -12,7 +12,8 @@ import {
 import { Buffer } from "buffer";
 
 const PROGRAM_ID = new PublicKey(
-  "BpU1mcCAtpJN6bRzetzNvfP1Z4do5hJGSVPq9MtfeT6J",
+  // "BpU1mcCAtpJN6bRzetzNvfP1Z4do5hJGSVPq9MtfeT6J",
+  "6uDtiJRSqndH3AcdvHraUvnPspVLNXLukaWXHitTUFCB",
 );
 
 const INSTRUCTIONS = {
@@ -90,6 +91,8 @@ test("initialize counter", async () => {
   } catch (err) {
     console.error(err);
   }
+
+  // get state (bump)
 
   // expect(a)
 });

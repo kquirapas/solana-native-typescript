@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+
 # get program name from 1st positional argument
 PROGRAM_NAME=$1
 
