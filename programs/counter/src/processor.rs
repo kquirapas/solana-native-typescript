@@ -3,12 +3,14 @@ use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     program::invoke_signed,
+    program_error::ProgramError,
     pubkey::Pubkey,
     rent::Rent,
     system_instruction,
     sysvar::Sysvar,
 };
 
+use crate::error::CounterError;
 use crate::instruction::{CounterInstruction, CounterInstructionCode};
 use crate::state::Counter;
 
@@ -75,6 +77,9 @@ impl<'a> Processor {
         counter: &AccountInfo<'a>,
         bump: u8,
     ) -> ProgramResult {
+        // errors
+        use CounterError::AlreadyInitialized;
+
         // get rent
         let counter_rent = match Rent::get() {
             Ok(rent_sysvar) => rent_sysvar,
@@ -100,7 +105,14 @@ impl<'a> Processor {
             &[owner.clone(), counter.clone()],
             &[&[owner.key.as_ref(), b"counter_account", &[counter_data.bump]]],
         ) {
-            panic!("Error invoking account creation for Mint Account: {}", e)
+            match e {
+                // if already initialized
+                ProgramError::AccountAlreadyInitialized => {
+                    return Err(ProgramError::from(AlreadyInitialized))
+                }
+                // rethrow
+                _ => return Err(e),
+            }
         };
 
         // store data on new account via borsh
