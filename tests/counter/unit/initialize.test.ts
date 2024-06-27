@@ -11,6 +11,8 @@ import {
 } from "@solana/web3.js";
 import { Buffer } from "buffer";
 
+import * as borsh from "borsh";
+
 const PROGRAM_ID = new PublicKey(
   // "BpU1mcCAtpJN6bRzetzNvfP1Z4do5hJGSVPq9MtfeT6J",
   "6uDtiJRSqndH3AcdvHraUvnPspVLNXLukaWXHitTUFCB",
@@ -35,15 +37,8 @@ test("initialize counter", async () => {
     ]),
   );
 
-  let airdropSignature = await connection.requestAirdrop(
-    payer.publicKey,
-    5 * LAMPORTS_PER_SOL,
-  );
-
-  console.log("airdrop tx:", airdropSignature);
-
-  console.log("payer:", payer.publicKey);
-  console.log("balance:", await connection.getBalance(payer.publicKey));
+  // get airdrop
+  await connection.requestAirdrop(payer.publicKey, 5 * LAMPORTS_PER_SOL);
 
   const [counterAccountPda, canonicalBump] = PublicKey.findProgramAddressSync(
     [payer.publicKey.toBuffer(), Buffer.from("counter_account")],
@@ -94,6 +89,36 @@ test("initialize counter", async () => {
 
   // TODO: get state (counter, bump)
   // TODO: explore WASM for annotating state
+  class CounterAccountData {
+    public readonly count;
+    public readonly bump;
 
-  // expect(a)
+    constructor(fields: { count: number; bump: number }) {
+      if (fields) {
+        this.count = fields.count;
+        this.bump = fields.bump;
+      }
+    }
+  }
+
+  const CounterSchema = {
+    struct: { count: "i64", bump: "u8" },
+  };
+
+  try {
+    // get data
+    const accountInfo = await connection.getAccountInfo(counterAccountPda);
+
+    if (accountInfo) {
+      const fetchedData = accountInfo.data;
+      const counterData = borsh.deserialize(
+        CounterSchema,
+        fetchedData,
+      ) as CounterAccountData;
+      expect(counterData.count).toBe(BigInt(0));
+      expect(counterData.bump).toBe(canonicalBump);
+    }
+  } catch (err) {
+    console.error(err);
+  }
 });
