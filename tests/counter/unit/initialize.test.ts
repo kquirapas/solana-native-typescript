@@ -92,7 +92,7 @@ test("initialize counter", async () => {
     console.error(err);
   }
 
-  // get state (bump)
+  // TODO: get state (counter, bump)
 
   // expect(a)
 });
