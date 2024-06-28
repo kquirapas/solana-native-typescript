@@ -12,10 +12,14 @@ import {
 import { Buffer } from "buffer";
 import { getCounterAccountData } from "../../../client";
 
-const PROGRAM_ID = new PublicKey(
-  // "BpU1mcCAtpJN6bRzetzNvfP1Z4do5hJGSVPq9MtfeT6J",
-  "6uDtiJRSqndH3AcdvHraUvnPspVLNXLukaWXHitTUFCB",
-);
+import dotenv from "dotenv";
+dotenv.config({ path: ".env" });
+
+import TEST_KEYPAIR from "../../test-keypair.json";
+
+const RPC_URL = process.env.TEST_RPC_URL as string;
+const PROGRAM_ID = new PublicKey(process.env.TEST_COUNTER_PROGRAM_ID as string);
+const WALLET = Keypair.fromSecretKey(new Uint8Array(TEST_KEYPAIR));
 
 const INSTRUCTIONS = {
   Initialize: 0,
@@ -26,15 +30,8 @@ const INSTRUCTIONS = {
 jest.setTimeout(100000);
 
 test("initialize counter", async () => {
-  const connection = new Connection("http://127.0.0.1:8899");
-  const payer = Keypair.fromSecretKey(
-    new Uint8Array([
-      192, 45, 79, 47, 38, 198, 135, 27, 191, 116, 8, 103, 96, 204, 251, 131,
-      110, 7, 179, 0, 236, 71, 217, 202, 191, 140, 13, 148, 165, 62, 107, 20,
-      118, 252, 252, 98, 134, 2, 49, 17, 166, 221, 114, 65, 149, 220, 228, 81,
-      254, 57, 227, 230, 70, 178, 135, 176, 103, 235, 188, 54, 173, 91, 232, 57,
-    ]),
-  );
+  const connection = new Connection(RPC_URL);
+  const payer = WALLET;
 
   // get airdrop
   await connection.requestAirdrop(payer.publicKey, 5 * LAMPORTS_PER_SOL);
