@@ -88,8 +88,6 @@ test("initialize counter", async () => {
     counterAccountPda,
   );
 
-  console.log("counterData", counterData);
-
   expect(counterData?.count).toBe(BigInt(0));
   expect(counterData?.bump).toBe(canonicalBump);
 });

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "test": "jest --verbose ./tests/",
-    "test:local": "",
     "build:counter": "scripts/build.sh counter",
     "vbuild:counter": "scripts/verifiable-build.sh counter",
+    "test": "jest --verbose ./tests/",
+    "test:local": "",
     "test:counter": "jest ./tests/counter/unit/initialize.test.ts",
     "clean:docker": "",
     "cli": ""
